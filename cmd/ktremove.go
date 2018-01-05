@@ -18,6 +18,12 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("ktremove called")
+		// fmt.Println("Jason")
+		// kt, err := keytab.Load("/etc/krb5.keytab")
+		// if err != nil {
+		// 	panic(fmt.Sprintf("%v", err))
+		// }
+		// fmt.Printf("%+v", kt)
 	},
 }
 
@@ -33,4 +39,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// ktremoveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func MyCmd() {
 }
