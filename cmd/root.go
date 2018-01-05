@@ -25,20 +25,12 @@ import (
 
 var cfgFile string
 var keytabPath string
+var verbose string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "testingcobra",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Use:   "goktutil",
+	Short: "ktutil like tool written in go",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -56,10 +48,12 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.testingcobra.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.goktutil.yaml)")
 
 	// Keytab path
-	rootCmd.PersistentFlags().StringVar(&keytabPath, "keytab", "", "Path to keytab file.")
+	rootCmd.PersistentFlags().StringVarP(&keytabPath, "keytab", "k", "", "Specifies the keytab file. (default is /etc/krb5.keytab)")
+
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -81,7 +75,7 @@ func initConfig() {
 
 		// Search config in home directory with name ".testingcobra" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".testingcobra")
+		viper.SetConfigName(".goktutil")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
