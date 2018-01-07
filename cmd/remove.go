@@ -22,13 +22,13 @@ var removeCmd = &cobra.Command{
 	Long: `Remove a Service Principal Name (SPN) from a Keytab file
 
 Remove all associated keys:
-  gokutil remove --keytab /etc/krb5.keytab HTTP/MYHOST --all
+  gokutil remove --keytab /etc/krb5.keytab --principal HTTP/MYHOST --all
 
 Remove old associated keys:
-  gokutil remove --keytab /etc/krb5.keytab HTTP/MYHOST --old
+  gokutil remove --keytab /etc/krb5.keytab --principal HTTP/MYHOST --old
 
 Remove kvno associated keys:
-  gokutil remove --keytab /etc/krb5.keytab HTTP/MYHOST --kvno 2
+  gokutil remove --keytab /etc/krb5.keytab --principal HTTP/MYHOST --kvno 2
 `,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if kvno == 0 && all == false && old == false {
@@ -94,7 +94,17 @@ func keytabKeyRemoval() {
 }
 
 func removeOld(kt keytab.Keytab) keytab.Keytab {
+	highestKvno := 0
+	for _, entry := range kt.Entries {
+		if entry.Principal.Name() == principal && entry.KeyVersionNumber() > highestKvno {
+			highestKvno = entry.KeyVersionNumber()
+		}
+	}
+
 	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
+		if ke.Principal.Name() == principal && ke.KeyVersionNumber() < highestKvno {
+			return false
+		}
 		return true
 	})
 
