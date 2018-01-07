@@ -71,7 +71,16 @@ func keytabKeyRemoval() {
 		os.Exit(3)
 	}
 
-	newKeytab := removeKvno(kt)
+	var newKeytab keytab.Keytab
+	if kvno != 0 {
+		newKeytab = removeKvno(kt)
+	}
+	if all == true {
+		newKeytab = removeAll(kt)
+	}
+	if old == true {
+		newKeytab = removeOld(kt)
+	}
 	if bytes.Equal(newKeytab.Bytes(), kt.Bytes()) {
 		fmt.Fprintf(os.Stdout, "No changes needed to be saved.\n")
 	} else {
@@ -84,10 +93,42 @@ func keytabKeyRemoval() {
 	}
 }
 
+func removeOld(kt keytab.Keytab) keytab.Keytab {
+	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
+		return false
+	})
+
+	return newKeytab
+}
+
+func removeAll(kt keytab.Keytab) keytab.Keytab {
+	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
+		if ke.Principal.Name() == principal {
+			return true
+		}
+
+		return false
+	})
+
+	return newKeytab
+}
+
 func removeKvno(kt keytab.Keytab) keytab.Keytab {
+	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
+		if ke.Principal.Name() == principal && ke.KeyVersionNumber() == kvno {
+			return true
+		}
+
+		return false
+	})
+
+	return newKeytab
+}
+
+func filterKeytabPrincipals(kt keytab.Keytab, filter func(keytab.Entry) bool) keytab.Keytab {
 	entries := kt.Entries[:0]
 	for _, entry := range kt.Entries {
-		if entry.KeyVersionNumber() != kvno {
+		if filter(entry) {
 			entries = append(entries, entry)
 		}
 	}
@@ -95,8 +136,4 @@ func removeKvno(kt keytab.Keytab) keytab.Keytab {
 	kt.Entries = entries
 
 	return kt
-}
-
-func removeAll() {
-
 }
