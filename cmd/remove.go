@@ -95,7 +95,7 @@ func keytabKeyRemoval() {
 
 func removeOld(kt keytab.Keytab) keytab.Keytab {
 	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
-		return false
+		return true
 	})
 
 	return newKeytab
@@ -104,10 +104,10 @@ func removeOld(kt keytab.Keytab) keytab.Keytab {
 func removeAll(kt keytab.Keytab) keytab.Keytab {
 	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
 		if ke.Principal.Name() == principal {
-			return true
+			return false
 		}
 
-		return false
+		return true
 	})
 
 	return newKeytab
@@ -116,10 +116,10 @@ func removeAll(kt keytab.Keytab) keytab.Keytab {
 func removeKvno(kt keytab.Keytab) keytab.Keytab {
 	newKeytab := filterKeytabPrincipals(kt, func(ke keytab.Entry) bool {
 		if ke.Principal.Name() == principal && ke.KeyVersionNumber() == kvno {
-			return true
+			return false
 		}
 
-		return false
+		return true
 	})
 
 	return newKeytab
