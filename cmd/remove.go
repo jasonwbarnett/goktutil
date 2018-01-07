@@ -1,10 +1,14 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/jasonwbarnett/gokrb5.v555/keytab"
 )
 
 var principal string
@@ -43,13 +47,7 @@ Remove kvno associated keys:
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		MyCmd()
-		// fmt.Println("Jason")
-		// kt, err := keytab.Load("/etc/krb5.keytab")
-		// if err != nil {
-		// 	panic(fmt.Sprintf("%v", err))
-		// }
-		// fmt.Printf("%+v", kt)
+		keytabKeyRemoval()
 	},
 }
 
@@ -62,6 +60,43 @@ func init() {
 	removeCmd.Flags().BoolVar(&old, "old", false, "Removes all entries for the specified principal, except those principals with the highest key version number.")
 }
 
-func MyCmd() {
-	fmt.Println("ktremove called")
+func keytabKeyRemoval() {
+	if _, err := os.Stat(keytabPath); os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "Keytab does not exist, %v\n", keytabPath)
+		os.Exit(2)
+	}
+	kt, err := keytab.Load(keytabPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(3)
+	}
+
+	newKeytab := removeKvno(kt)
+	if bytes.Equal(newKeytab.Bytes(), kt.Bytes()) {
+		fmt.Fprintf(os.Stdout, "No changes needed to be saved.\n")
+	} else {
+		fmt.Fprintf(os.Stdout, "Writing changes\n")
+		err = ioutil.WriteFile(keytabPath, newKeytab.Bytes(), 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(4)
+		}
+	}
+}
+
+func removeKvno(kt keytab.Keytab) keytab.Keytab {
+	entries := kt.Entries[:0]
+	for _, entry := range kt.Entries {
+		if entry.KeyVersionNumber() != kvno {
+			entries = append(entries, entry)
+		}
+	}
+
+	kt.Entries = entries
+
+	return kt
+}
+
+func removeAll() {
+
 }

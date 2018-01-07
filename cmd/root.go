@@ -51,7 +51,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.goktutil.yaml)")
 
 	// Keytab path
-	rootCmd.PersistentFlags().StringVarP(&keytabPath, "keytab", "k", "", "Specifies the keytab file. (default is /etc/krb5.keytab)")
+	rootCmd.PersistentFlags().StringVarP(&keytabPath, "keytab", "k", "/etc/krb5.keytab", "Specifies the keytab file. (default is /etc/krb5.keytab")
 
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose")
 
